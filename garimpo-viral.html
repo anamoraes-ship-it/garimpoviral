@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GarimpoViral</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #242424;
+    --bg4: #2e2e2e;
+    --border: #333;
+    --text: #f0f0f0;
+    --text2: #aaa;
+    --text3: #666;
+    --accent: #ff6b35;
+    --accent2: #ff8c5a;
+    --blue: #4a9eff;
+    --green: #4caf7d;
+    --yellow: #f5c842;
+    --red: #e05252;
+    --purple: #9b6dff;
+    --pink: #ff6b9d;
+  }
+  .light {
+    --bg: #f8f8f8;
+    --bg2: #ffffff;
+    --bg3: #f0f0f0;
+    --bg4: #e8e8e8;
+    --border: #ddd;
+    --text: #1a1a1a;
+    --text2: #555;
+    --text3: #999;
+    --accent: #e55a25;
+    --accent2: #ff7a45;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* TOP NAV */
+  .topnav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    height: 52px; padding: 0 16px; gap: 4px;
+  }
+  .logo {
+    font-size: 15px; font-weight: 700;
+    color: var(--accent); margin-right: 16px;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--text); }
+  .nav-tab {
+    padding: 6px 14px; border-radius: 8px;
+    cursor: pointer; font-size: 13px;
+    color: var(--text2); transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+    border: none; background: none; white-space: nowrap;
+  }
+  .nav-tab:hover { background: var(--bg3); color: var(--text); }
+  .nav-tab.active { background: var(--accent); color: #fff; }
+  .nav-tab .icon { font-size: 14px; }
+  .nav-right {
+    margin-left: auto; display: flex; align-items: center; gap: 8px;
+  }
+  .theme-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg3); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; transition: all 0.15s;
+  }
+  .theme-btn:hover { background: var(--bg4); }
+  .user-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+
+  /* LAYOUT */
+  .app-body {
+    display: flex; margin-top: 52px; height: calc(100vh - 52px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; min-width: 240px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; transition: width 0.2s, min-width 0.2s;
+    position: relative;
+  }
+  .sidebar.collapsed { width: 0; min-width: 0; overflow: hidden; }
+  .sidebar-toggle {
+    position: fixed; left: 240px; top: 50%;
+    transform: translateY(-50%);
+    z-index: 50; width: 18px; height: 40px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-left: none; border-radius: 0 6px 6px 0;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--text2); transition: left 0.2s;
+  }
+  .sidebar-toggle.collapsed-pos { left: 0; }
+  .sidebar-section { padding: 12px 0; }
+  .sidebar-label {
+    padding: 4px 16px; font-size: 10px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .sidebar-item {
+    padding: 7px 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text2);
+    transition: all 0.12s; border-radius: 0;
+  }
+  .sidebar-item:hover { background: var(--bg3); color: var(--text); }
+  .sidebar-item.active { background: var(--bg3); color: var(--accent); }
+  .sidebar-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .sidebar-badge {
+    margin-left: auto; background: var(--accent);
+    color: #fff; font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 10px;
+  }
+  .sidebar-add-btn {
+    margin: 8px 16px; padding: 6px 12px;
+    border: 1px dashed var(--border); border-radius: 8px;
+    background: none; color: var(--text3);
+    font-size: 12px; cursor: pointer; width: calc(100% - 32px);
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.12s;
+  }
+  .sidebar-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1; overflow-y: auto; padding: 20px;
+    transition: all 0.2s;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* SEARCH SCREEN */
+  .search-hero {
+    max-width: 680px; margin: 0 auto; padding-top: 20px;
+  }
+  .search-title {
+    font-size: 22px; font-weight: 600; margin-bottom: 6px;
+  }
+  .search-subtitle {
+    color: var(--text2); margin-bottom: 24px; font-size: 14px;
+  }
+  .search-bar-wrap {
+    display: flex; gap: 8px; margin-bottom: 16px;
+  }
+  .search-input-wrap {
+    flex: 1; display: flex; align-items: center;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0 12px; gap: 8px;
+  }
+  .search-input-wrap:focus-within { border-color: var(--accent); }
+  .search-input-wrap svg { color: var(--text3); flex-shrink: 0; }
+  .search-input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text); font-size: 14px; padding: 11px 0;
+  }
+  .search-input::placeholder { color: var(--text3); }
+  .search-btn {
+    padding: 0 20px; background: var(--accent); color: #fff;
+    border: none; border-radius: 10px; font-size: 14px;
+    font-weight: 500; cursor: pointer; transition: all 0.15s;
+  }
+  .search-btn:hover { background: var(--accent2); }
+  .filter-btn {
+    width: 44px; height: 44px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg2);
+    color: var(--text2); cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; position: relative;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-badge {
+    position: absolute; top: -4px; right: -4px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* FILTER PANEL */
+  .filter-panel {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 16px;
+    display: none;
+  }
+  .filter-panel.open { display: block; }
+  .filter-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin-bottom: 12px;
+  }
+  .filter-group label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.6px; margin-bottom: 6px;
+  }
+  .filter-select, .filter-input {
+    width: 100%; padding: 7px 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 13px;
+    outline: none; transition: border-color 0.15s;
+  }
+  .filter-select:focus, .filter-input:focus { border-color: var(--accent); }
+  .period-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .period-chip {
+    padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3);
+    font-size: 12px; cursor: pointer; color: var(--text2);
+    transition: all 0.12s;
+  }
+  .period-chip:hover, .period-chip.active {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(255,107,53,0.1);
+  }
+  .platform-chips {
+    display: flex; gap: 8px; margin-bottom: 16px;
+  }
+  .platform-chip {
+    flex: 1; padding: 8px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg3);
+    cursor: pointer; text-align: center; transition: all 0.12s;
+    font-size: 13px; color: var(--text2);
+  }
+  .platform-chip:hover { border-color: var(--border); }
+  .platform-chip.active.ig { border-color: #e1306c; color: #e1306c; background: rgba(225,48,108,0.08); }
+  .platform-chip.active.yt { border-color: #ff0000; color: #ff0000; background: rgba(255,0,0,0.08); }
+  .platform-chip.active.tt { border-color: #69c9d0; color: #69c9d0; background: rgba(105,201,208,0.08); }
+
+  /* RESULTS */
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; margin-top: 8px;
+  }
+  .results-count { font-size: 13px; color: var(--text2); }
+  .results-count strong { color: var(--text); }
+  .sort-select {
+    padding: 5px 10px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 12px; outline: none;
+  }
+  .video-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .video-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; cursor: pointer;
+    transition: all 0.15s; position: relative;
+  }
+  .video-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .video-thumb {
+    width: 100%; aspect-ratio: 9/16; background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; position: relative; overflow: hidden;
+  }
+  .video-thumb-bg {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+  .video-views {
+    position: absolute; bottom: 6px; left: 6px;
+    background: rgba(0,0,0,0.7); color: #fff;
+    font-size: 11px; padding: 2px 7px; border-radius: 4px;
+    font-weight: 500;
+  }
+  .video-platform {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .video-platform.ig { background: #e1306c; color: #fff; }
+  .video-platform.yt { background: #ff0000; color: #fff; }
+  .video-platform.tt { background: #010101; color: #fff; border: 1px solid #333; }
+  .video-info { padding: 10px; }
+  .video-title {
+    font-size: 12px; color: var(--text);
+    margin-bottom: 6px; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .video-meta {
+    display: flex; gap: 8px; font-size: 11px; color: var(--text3);
+  }
+  .video-actions {
+    display: flex; gap: 6px; padding: 0 10px 10px;
+  }
+  .action-btn {
+    flex: 1; padding: 5px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    transition: all 0.12s; text-align: center;
+  }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.save { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* SAVE MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; width: 340px;
+    max-width: 90vw;
+  }
+  .modal-title {
+    font-size: 15px; font-weight: 600; margin-bottom: 4px;
+  }
+  .modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
+  .category-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+  }
+  .cat-btn {
+    padding: 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text2); font-size: 12px; cursor: pointer;
+    transition: all 0.15s; text-align: center;
+  }
+  .cat-btn:hover, .cat-btn.selected {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(255,107,53,0.08);
+  }
+  .cat-btn .cat-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-cancel {
+    flex: 1; padding: 9px; border-radius: 8px;
+    border: 1px solid var(--border); background: none;
+    color: var(--text2); cursor: pointer; font-size: 13px;
+  }
+  .btn-confirm {
+    flex: 1; padding: 9px; border-radius: 8px;
+    border: none; background: var(--accent);
+    color: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .btn-confirm:hover { background: var(--accent2); }
+
+  /* DOSSIER BAR */
+  .dossier-bar {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;
+    display: none;
+  }
+  .dossier-bar.visible { display: block; }
+  .dossier-bar-title {
+    font-size: 12px; font-weight: 600; color: var(--text2);
+    margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .dossier-options {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .dossier-opt {
+    padding: 6px 12px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text2); font-size: 12px; cursor: pointer;
+    transition: all 0.12s; display: flex; align-items: center; gap: 5px;
+  }
+  .dossier-opt:hover, .dossier-opt.active {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(255,107,53,0.08);
+  }
+  .dossier-generate {
+    margin-top: 10px; padding: 8px 16px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 500; display: none;
+  }
+  .dossier-generate.visible { display: block; }
+  .dossier-generate:hover { background: var(--accent2); }
+
+  /* DOSSIER RESULT */
+  .dossier-result {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+    display: none;
+  }
+  .dossier-result.visible { display: block; }
+  .dossier-result-title {
+    font-size: 14px; font-weight: 600; margin-bottom: 12px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .dossier-insight {
+    display: flex; gap: 10px; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .dossier-insight:last-child { border-bottom: none; }
+  .dossier-insight-icon { font-size: 16px; margin-top: 1px; }
+  .dossier-insight-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .dossier-insight-text strong { color: var(--text); font-weight: 500; }
+
+  /* LIBRARY SCREEN */
+  .library-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .library-title { font-size: 20px; font-weight: 600; }
+  .lib-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .lib-filter {
+    padding: 5px 12px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg2);
+    color: var(--text2); font-size: 12px; cursor: pointer;
+    transition: all 0.12s;
+  }
+  .lib-filter:hover { border-color: var(--accent); color: var(--accent); }
+  .lib-filter.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .lib-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .lib-card {
+    background: var(--bg2); border-radius: 10px;
+    overflow: hidden; border: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .lib-card:hover { border-color: var(--border); transform: translateY(-1px); }
+  .lib-card-thumb {
+    aspect-ratio: 9/16; background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; position: relative;
+  }
+  .lib-cat-badge {
+    position: absolute; bottom: 6px; left: 6px;
+    padding: 2px 8px; border-radius: 5px;
+    font-size: 10px; font-weight: 600; color: #fff;
+  }
+  .lib-status-badge {
+    position: absolute; top: 6px; left: 6px;
+    padding: 2px 7px; border-radius: 5px;
+    font-size: 10px; font-weight: 500;
+  }
+  .status-baixado { background: rgba(74,158,255,0.15); color: var(--blue); }
+  .status-editando { background: rgba(245,200,66,0.15); color: var(--yellow); }
+  .status-pronto { background: rgba(76,175,125,0.15); color: var(--green); }
+  .status-postado { background: rgba(155,109,255,0.15); color: var(--purple); }
+  .lib-card-info { padding: 10px; }
+  .lib-card-profile {
+    font-size: 11px; color: var(--text3); margin-bottom: 3px;
+  }
+  .lib-card-title {
+    font-size: 12px; color: var(--text); line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .lib-card-actions {
+    display: flex; gap: 6px; padding: 0 10px 10px;
+  }
+  .lib-download-btn {
+    flex: 1; padding: 5px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    transition: all 0.12s;
+  }
+  .lib-download-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* FAVORITES SCREEN */
+  .fav-platforms {
+    display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .fav-platform-tab {
+    padding: 8px 18px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg2);
+    cursor: pointer; font-size: 13px; color: var(--text2);
+    transition: all 0.15s; display: flex; align-items: center; gap: 7px;
+  }
+  .fav-platform-tab:hover { border-color: var(--border); }
+  .fav-platform-tab.active.ig { border-color: #e1306c; color: #e1306c; background: rgba(225,48,108,0.07); }
+  .fav-platform-tab.active.yt { border-color: #ff0000; color: #ff0000; background: rgba(255,0,0,0.07); }
+  .fav-platform-tab.active.tt { border-color: #69c9d0; color: #69c9d0; background: rgba(105,201,208,0.07); }
+  .fav-list { display: flex; flex-direction: column; gap: 10px; }
+  .fav-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.15s;
+  }
+  .fav-item:hover { border-color: var(--border); }
+  .fav-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .fav-info { flex: 1; }
+  .fav-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .fav-meta { font-size: 12px; color: var(--text2); }
+  .fav-notif {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .notif-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .notif-text { font-size: 11px; color: var(--accent); font-weight: 500; }
+  .fav-base { font-size: 11px; color: var(--text3); }
+
+  /* ANALYTICS SCREEN */
+  .analytics-profiles {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .analytics-profile-card {
+    background: var(--bg2); border-radius: 12px;
+    border: 1px solid var(--border); overflow: hidden;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .analytics-profile-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .analytics-card-header {
+    padding: 14px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .analytics-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+  }
+  .analytics-name { font-size: 14px; font-weight: 500; }
+  .analytics-platform { font-size: 11px; color: var(--text3); }
+  .analytics-metrics {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    padding: 12px;
+  }
+  .analytics-metric { text-align: center; }
+  .analytics-metric-value {
+    font-size: 18px; font-weight: 600; color: var(--text);
+  }
+  .analytics-metric-label {
+    font-size: 10px; color: var(--text3); margin-top: 2px;
+  }
+  .analytics-detail { padding: 0 12px 12px; }
+  .analytics-bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text2); margin-bottom: 4px; margin-top: 8px;
+  }
+  .analytics-bar-bg {
+    height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden;
+  }
+  .analytics-bar-fill {
+    height: 100%; border-radius: 3px; transition: width 0.5s;
+  }
+
+  /* VIRAL ANALYSIS */
+  .viral-analysis {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 20px;
+  }
+  .viral-analysis-title {
+    font-size: 15px; font-weight: 600; margin-bottom: 14px;
+  }
+  .insight-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .insight-card {
+    background: var(--bg3); border-radius: 8px; padding: 12px;
+  }
+  .insight-card-label {
+    font-size: 10px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.6px; margin-bottom: 6px;
+  }
+  .insight-card-value {
+    font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px;
+  }
+  .insight-card-sub { font-size: 11px; color: var(--text2); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 48px 20px; color: var(--text2);
+  }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state-title { font-size: 16px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+  .empty-state-sub { font-size: 13px; }
+
+  /* DOWNLOAD QUALITY MODAL */
+  .quality-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+  }
+  .quality-btn {
+    padding: 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text2); cursor: pointer; text-align: center;
+    transition: all 0.15s;
+  }
+  .quality-btn:hover, .quality-btn.selected {
+    border-color: var(--blue); color: var(--blue);
+    background: rgba(74,158,255,0.08);
+  }
+  .quality-btn .q-label { font-size: 14px; font-weight: 600; display: block; }
+  .quality-btn .q-sub { font-size: 11px; margin-top: 2px; }
+
+  /* PROFILE MODAL */
+  .profile-form-group { margin-bottom: 12px; }
+  .profile-form-group label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.6px; margin-bottom: 6px;
+  }
+  .profile-input {
+    width: 100%; padding: 8px 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 13px; outline: none;
+  }
+  .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-swatch {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.12s;
+  }
+  .color-swatch:hover, .color-swatch.selected { border-color: var(--text); transform: scale(1.1); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 13px; z-index: 300; transform: translateY(80px);
+    transition: transform 0.3s; opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { font-size: 16px; }
+
+  /* LOGIN SCREEN */
+  .login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: var(--bg);
+  }
+  .login-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px; width: 360px; max-width: 90vw;
+  }
+  .login-logo {
+    font-size: 22px; font-weight: 700; color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .login-logo span { color: var(--text); }
+  .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+  .login-form-group { margin-bottom: 14px; }
+  .login-form-group label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--text2); margin-bottom: 6px;
+  }
+  .login-input {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; padding: 11px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 8px; font-size: 14px;
+    font-weight: 500; cursor: pointer; margin-top: 4px;
+    transition: background 0.15s;
+  }
+  .login-btn:hover { background: var(--accent2); }
+  .login-switch {
+    text-align: center; margin-top: 16px;
+    font-size: 13px; color: var(--text2);
+  }
+  .login-switch a {
+    color: var(--accent); cursor: pointer; text-decoration: none;
+  }
+  .role-selector { display: flex; gap: 8px; margin-bottom: 14px; }
+  .role-opt {
+    flex: 1; padding: 8px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg3);
+    text-align: center; cursor: pointer; font-size: 12px;
+    color: var(--text2); transition: all 0.12s;
+  }
+  .role-opt.selected { border-color: var(--accent); color: var(--accent); background: rgba(255,107,53,0.08); }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Garimpo<span>Viral</span></div>
+    <div class="login-sub" id="loginSub">Entre na sua conta</div>
+
+    <div id="loginForm">
+      <div class="login-form-group">
+        <label>Email</label>
+        <input class="login-input" type="email" id="loginEmail" placeholder="seuemail@email.com" value="demo@garimpo.com">
+      </div>
+      <div class="login-form-group">
+        <label>Senha</label>
+        <input class="login-input" type="password" id="loginPass" placeholder="••••••••" value="12345">
+      </div>
+      <button class="login-btn" onclick="doLogin()">Entrar</button>
+      <div class="login-switch">Não tem conta? <a onclick="showRegister()">Criar conta</a></div>
+    </div>
+
+    <div id="registerForm" style="display:none">
+      <div class="login-form-group">
+        <label>Nome</label>
+        <input class="login-input" type="text" id="regName" placeholder="Seu nome">
+      </div>
+      <div class="login-form-group">
+        <label>Email</label>
+        <input class="login-input" type="email" id="regEmail" placeholder="seuemail@email.com">
+      </div>
+      <div class="login-form-group">
+        <label>Senha</label>
+        <input class="login-input" type="password" id="regPass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="login-form-group">
+        <label>Tipo de acesso</label>
+        <div class="role-selector">
+          <div class="role-opt selected" onclick="selectRole(this,'admin')">Administrador</div>
+          <div class="role-opt" onclick="selectRole(this,'editor')">Editor</div>
+          <div class="role-opt" onclick="selectRole(this,'viewer')">Visualizador</div>
+        </div>
+      </div>
+      <button class="login-btn" onclick="doRegister()">Criar conta</button>
+      <div class="login-switch"><a onclick="showLogin()">← Já tenho conta</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" style="display:none">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="logo">Garimpo<span>Viral</span></div>
+    <button class="nav-tab active" data-tab="search" onclick="switchTab('search',this)">
+      <span class="icon">🔍</span> Pesquisa
+    </button>
+    <button class="nav-tab" data-tab="library" onclick="switchTab('library',this)">
+      <span class="icon">📁</span> Biblioteca
+    </button>
+    <button class="nav-tab" data-tab="favorites" onclick="switchTab('favorites',this)">
+      <span class="icon">⭐</span> Favoritos
+    </button>
+    <button class="nav-tab" data-tab="analytics" onclick="switchTab('analytics',this)">
+      <span class="icon">📊</span> Analytics
+    </button>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+      <div class="user-btn" onclick="logout()" title="Sair">GV</div>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR TOGGLE -->
+  <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">◀</div>
+
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar scrollbar-thin" id="sidebar">
+
+      <!-- Search sidebar -->
+      <div id="sbSearch" class="sidebar-section">
+        <div class="sidebar-label">Plataformas</div>
+        <div class="sidebar-item active" onclick="setPlatform('all',this)">
+          <span>🌐</span> Todas
+        </div>
+        <div class="sidebar-item" onclick="setPlatform('ig',this)">
+          <span style="color:#e1306c">📸</span> Instagram
+        </div>
+        <div class="sidebar-item" onclick="setPlatform('yt',this)">
+          <span style="color:#ff0000">▶️</span> YouTube
+        </div>
+        <div class="sidebar-item" onclick="setPlatform('tt',this)">
+          <span style="color:#69c9d0">🎵</span> TikTok
+        </div>
+        <div class="sidebar-label" style="margin-top:8px">Pesquisas recentes</div>
+        <div class="sidebar-item">@memesbrasil</div>
+        <div class="sidebar-item">@risadaoficial</div>
+        <div class="sidebar-item">#memesbrasileiros</div>
+      </div>
+
+      <!-- Library sidebar -->
+      <div id="sbLibrary" class="sidebar-section" style="display:none">
+        <div class="sidebar-label">Meus Perfis</div>
+        <div id="libProfileList"></div>
+        <button class="sidebar-add-btn" onclick="openAddProfile()">+ Adicionar perfil</button>
+        <div class="sidebar-label" style="margin-top:8px">Categorias</div>
+        <div class="sidebar-item active" onclick="filterLibCat('all',this)">Todos</div>
+        <div id="libCatList"></div>
+        <button class="sidebar-add-btn" onclick="addCategory()">+ Nova categoria</button>
+        <div class="sidebar-label" style="margin-top:8px">Status</div>
+        <div class="sidebar-item" onclick="filterLibStatus('baixado',this)">🔵 Baixado</div>
+        <div class="sidebar-item" onclick="filterLibStatus('editando',this)">🟡 Editando</div>
+        <div class="sidebar-item" onclick="filterLibStatus('pronto',this)">🟢 Pronto</div>
+        <div class="sidebar-item" onclick="filterLibStatus('postado',this)">🟣 Postado</div>
+      </div>
+
+      <!-- Favorites sidebar -->
+      <div id="sbFavorites" class="sidebar-section" style="display:none">
+        <div class="sidebar-label">Base mínima</div>
+        <div class="sidebar-item" style="flex-direction:column;align-items:flex-start;gap:4px">
+          <span style="font-size:11px;color:var(--text3)">Views mínimas</span>
+          <input class="filter-input" type="number" placeholder="ex: 100000" style="width:100%;font-size:12px;padding:5px 8px">
+        </div>
+        <div class="sidebar-label" style="margin-top:8px">Notificações</div>
+        <div class="sidebar-item">🔔 Ativas: 3</div>
+      </div>
+
+      <!-- Analytics sidebar -->
+      <div id="sbAnalytics" class="sidebar-section" style="display:none">
+        <div class="sidebar-label">Meus Perfis</div>
+        <div id="analyticsProfileList"></div>
+        <button class="sidebar-add-btn" onclick="openAddProfile()">+ Adicionar perfil</button>
+      </div>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main scrollbar-thin" id="mainContent">
+
+      <!-- SEARCH SCREEN -->
+      <div class="screen active" id="screenSearch">
+        <div class="search-hero">
+          <div class="search-title">Garimpando virais</div>
+          <div class="search-subtitle">Pesquise por perfil ou hashtag e encontre só o que viralizou</div>
+
+          <div class="search-bar-wrap">
+            <div class="search-input-wrap">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input class="search-input" id="searchInput" placeholder="@perfil, #hashtag ou palavra-chave..." onkeydown="if(event.key==='Enter')doSearch()">
+            </div>
+            <button class="filter-btn" onclick="toggleFilters()" title="Filtros">
+              ⚙
+              <span class="filter-badge" id="filterBadge" style="display:none">0</span>
+            </button>
+            <button class="search-btn" onclick="doSearch()">Buscar</button>
+          </div>
+
+          <!-- FILTER PANEL -->
+          <div class="filter-panel" id="filterPanel">
+            <div class="filter-grid">
+              <div class="filter-group">
+                <label>Views mínimas</label>
+                <input class="filter-input" type="number" id="fViews" placeholder="ex: 50000" oninput="updateFilterBadge()">
+              </div>
+              <div class="filter-group">
+                <label>Comentários mínimos</label>
+                <input class="filter-input" type="number" id="fComments" placeholder="ex: 500" oninput="updateFilterBadge()">
+              </div>
+              <div class="filter-group">
+                <label>País</label>
+                <select class="filter-select" id="fCountry" onchange="updateFilterBadge()">
+                  <option value="">Todos</option>
+                  <option value="br" selected>🇧🇷 Brasil</option>
+                  <option value="us">🇺🇸 EUA</option>
+                  <option value="pt">🇵🇹 Portugal</option>
+                  <option value="ar">🇦🇷 Argentina</option>
+                  <option value="mx">🇲🇽 México</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Língua</label>
+                <select class="filter-select" id="fLang" onchange="updateFilterBadge()">
+                  <option value="">Todas</option>
+                  <option value="pt" selected>Português</option>
+                  <option value="en">Inglês</option>
+                  <option value="es">Espanhol</option>
+                </select>
+              </div>
+            </div>
+            <div class="filter-group" style="margin-bottom:10px">
+              <label>Período</label>
+              <div class="period-chips">
+                <div class="period-chip" onclick="selectPeriod(this,'1d')">1d</div>
+                <div class="period-chip active" onclick="selectPeriod(this,'7d')">7d</div>
+                <div class="period-chip" onclick="selectPeriod(this,'2s')">2s</div>
+                <div class="period-chip" onclick="selectPeriod(this,'1m')">1m</div>
+                <div class="period-chip" onclick="selectPeriod(this,'4m')">4m</div>
+                <div class="period-chip" onclick="selectPeriod(this,'7m')">7m</div>
+                <div class="period-chip" onclick="selectPeriod(this,'1a')">1a</div>
+                <div class="period-chip" onclick="selectPeriod(this,'3a')">3a</div>
+                <div class="period-chip" onclick="selectPeriod(this,'5a')">5a</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOSSIER BAR -->
+          <div class="dossier-bar" id="dossierBar">
+            <div class="dossier-bar-title">📋 Montar dossiê do perfil</div>
+            <div class="dossier-options">
+              <div class="dossier-opt" onclick="toggleDossierOpt(this,'patterns')">📈 Padrões de viralização</div>
+              <div class="dossier-opt" onclick="toggleDossierOpt(this,'times')">🕐 Melhores horários</div>
+              <div class="dossier-opt" onclick="toggleDossierOpt(this,'content')">🎭 Tipo de conteúdo</div>
+              <div class="dossier-opt" onclick="toggleDossierOpt(this,'caption')">📝 Padrão de legenda</div>
+              <div class="dossier-opt" onclick="toggleDossierOpt(this,'freq')">🔁 Frequência de postagem</div>
+              <div class="dossier-opt" onclick="toggleDossierOpt(this,'summary')">🎯 Resumo estratégico</div>
+            </div>
+            <button class="dossier-generate" id="dossierGenBtn" onclick="generateDossier()">Gerar dossiê ↗</button>
+          </div>
+
+          <!-- DOSSIER RESULT -->
+          <div class="dossier-result" id="dossierResult"></div>
+
+          <!-- RESULTS -->
+          <div id="searchResults"></div>
+        </div>
+      </div>
+
+      <!-- LIBRARY SCREEN -->
+      <div class="screen" id="screenLibrary">
+        <div class="library-header">
+          <div class="library-title">📁 Biblioteca</div>
+          <button class="search-btn" style="padding:8px 16px;font-size:13px" onclick="document.getElementById('uploadInput').click()">+ Importar vídeos</button>
+          <input type="file" id="uploadInput" multiple accept="video/*" style="display:none" onchange="handleUpload(this)">
+        </div>
+        <div class="lib-filters" id="libFilters">
+          <div class="lib-filter active" onclick="filterLibCat('all',this)">Todos</div>
+        </div>
+        <div class="lib-grid" id="libGrid"></div>
+      </div>
+
+      <!-- FAVORITES SCREEN -->
+      <div class="screen" id="screenFavorites">
+        <div style="font-size:20px;font-weight:600;margin-bottom:16px">⭐ Favoritos</div>
+        <div class="fav-platforms">
+          <div class="fav-platform-tab active ig" onclick="switchFavPlatform('ig',this)">📸 Instagram</div>
+          <div class="fav-platform-tab yt" onclick="switchFavPlatform('yt',this)">▶️ YouTube</div>
+          <div class="fav-platform-tab tt" onclick="switchFavPlatform('tt',this)">🎵 TikTok</div>
+        </div>
+        <div class="fav-list" id="favList"></div>
+      </div>
+
+      <!-- ANALYTICS SCREEN -->
+      <div class="screen" id="screenAnalytics">
+        <div style="font-size:20px;font-weight:600;margin-bottom:16px">📊 Analytics</div>
+        <div class="analytics-profiles" id="analyticsGrid"></div>
+        <div class="viral-analysis" id="viralAnalysis" style="display:none">
+          <div class="viral-analysis-title" id="viralAnalysisTitle">Análise de viralização</div>
+          <div class="insight-grid" id="insightGrid"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SAVE MODAL -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <div class="modal-title">Salvar na biblioteca</div>
+    <div class="modal-sub" id="saveModalSub">Escolha a categoria</div>
+    <div class="category-grid" id="catGrid"></div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px">Perfil de destino</label>
+      <select class="filter-select" id="saveProfile" style="width:100%"></select>
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px">Nota (opcional)</label>
+      <input class="profile-input" id="saveNote" placeholder="ex: pegar a narração do início">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSaveModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmSave()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOWNLOAD QUALITY MODAL -->
+<div class="modal-overlay" id="dlModal">
+  <div class="modal">
+    <div class="modal-title">Baixar vídeo</div>
+    <div class="modal-sub">Escolha a qualidade</div>
+    <div class="quality-grid">
+      <div class="quality-btn" onclick="selectQuality(this,'original')">
+        <span class="q-label">Original</span>
+        <span class="q-sub" style="color:var(--text3)">Qualidade máxima</span>
+      </div>
+      <div class="quality-btn selected" onclick="selectQuality(this,'1080p')">
+        <span class="q-label">1080p</span>
+        <span class="q-sub" style="color:var(--text3)">Full HD</span>
+      </div>
+      <div class="quality-btn" onclick="selectQuality(this,'720p')">
+        <span class="q-label">720p</span>
+        <span class="q-sub" style="color:var(--text3)">HD</span>
+      </div>
+      <div class="quality-btn" onclick="selectQuality(this,'480p')">
+        <span class="q-label">480p</span>
+        <span class="q-sub" style="color:var(--text3)">Leve / rápido</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('dlModal').classList.remove('open')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmDownload()">Baixar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PROFILE MODAL -->
+<div class="modal-overlay" id="addProfileModal">
+  <div class="modal">
+    <div class="modal-title">Adicionar perfil</div>
+    <div class="modal-sub">Configure seu perfil de trabalho</div>
+    <div class="profile-form-group">
+      <label>Nome do perfil</label>
+      <input class="profile-input" id="profileName" placeholder="ex: MemesPulso">
+    </div>
+    <div class="profile-form-group">
+      <label>Plataforma</label>
+      <select class="filter-select" id="profilePlatform" style="width:100%">
+        <option value="ig">📸 Instagram</option>
+        <option value="yt">▶️ YouTube</option>
+        <option value="tt">🎵 TikTok</option>
+      </select>
+    </div>
+    <div class="profile-form-group">
+      <label>Cor do perfil</label>
+      <div class="color-swatches" id="colorSwatches">
+        <div class="color-swatch selected" style="background:#ff6b35" data-color="#ff6b35" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#e1306c" data-color="#e1306c" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#4a9eff" data-color="#4a9eff" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#4caf7d" data-color="#4caf7d" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#f5c842" data-color="#f5c842" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#9b6dff" data-color="#9b6dff" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#ff6b9d" data-color="#ff6b9d" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#69c9d0" data-color="#69c9d0" onclick="selectColor(this)"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('addProfileModal').classList.remove('open')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmAddProfile()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Salvo na biblioteca!</span>
+</div>
+
+<script>
+// STATE
+let state = {
+  darkMode: true,
+  sidebarOpen: true,
+  currentTab: 'search',
+  currentFavPlatform: 'ig',
+  selectedPeriod: '7d',
+  selectedPlatform: 'all',
+  dossierOpts: new Set(),
+  selectedCat: null,
+  selectedQuality: '1080p',
+  selectedColor: '#ff6b35',
+  selectedRole: 'admin',
+  savingVideo: null,
+  profiles: [
+    { id: 1, name: 'MemesPulso', platform: 'ig', color: '#e1306c' },
+    { id: 2, name: 'ExtraLoco', platform: 'ig', color: '#4a9eff' }
+  ],
+  categories: ['🎵 Pegar música','🎙️ Pegar narração','💡 Ideia','🔁 Repostar'],
+  library: [],
+  favorites: {
+    ig: [
+      { name: 'memesbrasil', followers: '4M', color: '#e1306c', notify: true, base: '100K views', notifText: '2 novos virais' },
+      { name: 'risadaoficial', followers: '1.2M', color: '#ff6b35', notify: false, base: '50K views', notifText: '' },
+      { name: 'memepulso', followers: '800K', color: '#9b6dff', notify: true, base: '80K views', notifText: '1 novo viral' }
+    ],
+    yt: [
+      { name: 'PapoReto', followers: '2.1M', color: '#ff0000', notify: true, base: '200K views', notifText: '1 novo viral' },
+      { name: 'ViralBR', followers: '980K', color: '#ff6b35', notify: false, base: '100K views', notifText: '' }
+    ],
+    tt: [
+      { name: '@memesdobrasil', followers: '3.4M', color: '#69c9d0', notify: false, base: '500K views', notifText: '' }
+    ]
+  }
+};
+
+const mockVideos = [
+  { id:1, title:'Quando você pede pra alguém te mandar uma mensagem e...', views:'2.4M', comments:'8.2K', platform:'ig', emoji:'😂', date:'3d' },
+  { id:2, title:'Esse cachorro entendeu tudo sobre segunda-feira', views:'1.8M', comments:'5.1K', platform:'ig', emoji:'🐶', date:'5d' },
+  { id:3, title:'Narração épica de jogo de futebol que não era tão épico assim', views:'3.1M', comments:'12.3K', platform:'yt', emoji:'⚽', date:'1d' },
+  { id:4, title:'POV: você tentando explicar pra sua mãe o que é meme', views:'900K', comments:'3.4K', platform:'tt', emoji:'👩', date:'2d' },
+  { id:5, title:'Gato descobre espelho pela primeira vez e não aprova', views:'4.2M', comments:'18.7K', platform:'ig', emoji:'🐱', date:'7d' },
+  { id:6, title:'Dublagem perfeita de cena de filme com áudio errado', views:'1.2M', comments:'4.5K', platform:'tt', emoji:'🎬', date:'4d' },
+  { id:7, title:'Quando o chefe manda mensagem no domingo à noite', views:'5.1M', comments:'22.1K', platform:'ig', emoji:'😱', date:'6d' },
+  { id:8, title:'Criança explica o que é inflação melhor que economista', views:'2.7M', comments:'9.8K', platform:'yt', emoji:'👶', date:'2d' },
+];
+
+// INIT
+window.onload = function() {
+  renderLibSidebar();
+  renderAnalyticsSidebar();
+  renderAnalyticsGrid();
+  renderFavList();
+  renderLibGrid();
+  renderCatGridModal();
+};
+
+// LOGIN
+function doLogin() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  showToast('✅', 'Bem-vindo ao GarimpoViral!');
+}
+function doRegister() {
+  doLogin();
+}
+function logout() {
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+  document.getElementById('loginSub').textContent = 'Crie sua conta';
+}
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('loginSub').textContent = 'Entre na sua conta';
+}
+function selectRole(el, role) {
+  document.querySelectorAll('.role-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedRole = role;
+}
+
+// THEME
+function toggleTheme() {
+  state.darkMode = !state.darkMode;
+  document.body.classList.toggle('light', !state.darkMode);
+  document.getElementById('themeBtn').textContent = state.darkMode ? '🌙' : '☀️';
+}
+
+// TABS
+function switchTab(tab, btn) {
+  state.currentTab = tab;
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  ['sbSearch','sbLibrary','sbFavorites','sbAnalytics'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('sb' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+  if (tab === 'library') renderLibGrid();
+  if (tab === 'analytics') renderAnalyticsGrid();
+  if (tab === 'favorites') renderFavList();
+}
+
+// SIDEBAR
+function toggleSidebar() {
+  state.sidebarOpen = !state.sidebarOpen;
+  const sb = document.getElementById('sidebar');
+  const toggle = document.getElementById('sidebarToggle');
+  sb.classList.toggle('collapsed', !state.sidebarOpen);
+  toggle.classList.toggle('collapsed-pos', !state.sidebarOpen);
+  toggle.textContent = state.sidebarOpen ? '◀' : '▶';
+  toggle.style.left = state.sidebarOpen ? '240px' : '0';
+}
+
+// SEARCH
+function setPlatform(platform, el) {
+  state.selectedPlatform = platform;
+  document.querySelectorAll('#sbSearch .sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleFilters() {
+  document.getElementById('filterPanel').classList.toggle('open');
+}
+function selectPeriod(el, period) {
+  document.querySelectorAll('.period-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state.selectedPeriod = period;
+  updateFilterBadge();
+}
+function updateFilterBadge() {
+  let count = 0;
+  if (document.getElementById('fViews').value) count++;
+  if (document.getElementById('fComments').value) count++;
+  if (document.getElementById('fCountry').value) count++;
+  if (document.getElementById('fLang').value) count++;
+  const badge = document.getElementById('filterBadge');
+  badge.style.display = count > 0 ? 'flex' : 'none';
+  badge.textContent = count;
+}
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const isProfile = q.startsWith('@');
+  const resultsEl = document.getElementById('searchResults');
+  resultsEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">🔍 Buscando virais...</div>';
+  setTimeout(() => {
+    let videos = mockVideos.filter(v => state.selectedPlatform === 'all' || v.platform === state.selectedPlatform);
+    const minViews = document.getElementById('fViews').value;
+    if (minViews) videos = videos.filter(v => parseFloat(v.views) * 1e5 >= parseFloat(minViews));
+    document.getElementById('dossierBar').classList.toggle('visible', isProfile);
+    document.getElementById('dossierResult').classList.remove('visible');
+    state.dossierOpts.clear();
+    document.querySelectorAll('.dossier-opt').forEach(o => o.classList.remove('active'));
+    document.getElementById('dossierGenBtn').classList.remove('visible');
+    resultsEl.innerHTML = `
+      <div class="results-header">
+        <div class="results-count">Encontrados <strong>${videos.length} Reels</strong> para "${q}"</div>
+        <select class="sort-select">
+          <option>Mais visualizados</option>
+          <option>Mais comentados</option>
+          <option>Mais recentes</option>
+        </select>
+      </div>
+      <div class="video-grid">${videos.map(renderVideoCard).join('')}</div>`;
+  }, 800);
+}
+
+function renderVideoCard(v) {
+  const platLabel = {ig:'IG',yt:'YT',tt:'TT'}[v.platform];
+  return `<div class="video-card">
+    <div class="video-thumb">
+      <div class="video-thumb-bg">${v.emoji}</div>
+      <div class="video-views">👁 ${v.views}</div>
+      <div class="video-platform ${v.platform}">${platLabel}</div>
+    </div>
+    <div class="video-info">
+      <div class="video-title">${v.title}</div>
+      <div class="video-meta">
+        <span>💬 ${v.comments}</span>
+        <span>📅 ${v.date} atrás</span>
+      </div>
+    </div>
+    <div class="video-actions">
+      <div class="action-btn" onclick="openDownload(${v.id})">⬇ Baixar</div>
+      <div class="action-btn save" onclick="openSaveModal(${v.id})">+ Salvar</div>
+    </div>
+  </div>`;
+}
+
+// DOSSIER
+function toggleDossierOpt(el, opt) {
+  el.classList.toggle('active');
+  if (state.dossierOpts.has(opt)) state.dossierOpts.delete(opt);
+  else state.dossierOpts.add(opt);
+  document.getElementById('dossierGenBtn').classList.toggle('visible', state.dossierOpts.size > 0);
+}
+function generateDossier() {
+  const result = document.getElementById('dossierResult');
+  result.innerHTML = '<div style="padding:10px;color:var(--text2);font-size:13px">⏳ Gerando dossiê...</div>';
+  result.classList.add('visible');
+  setTimeout(() => {
+    const insights = {
+      patterns: { icon:'📈', label:'Padrões de viralização', text: '<strong>Humor cotidiano + animais</strong> dominam 70% dos virais. Vídeos com ganchos nos primeiros 3 segundos têm 3x mais retenção.' },
+      times: { icon:'🕐', label:'Melhores horários', text: '<strong>19h–21h</strong> concentra 45% do engajamento. Terça e quinta são os dias com maior alcance orgânico.' },
+      content: { icon:'🎭', label:'Tipo de conteúdo', text: 'Predomina <strong>meme de reação (42%)</strong>, seguido de situação cotidiana (31%) e animais (18%).' },
+      caption: { icon:'📝', label:'Padrão de legenda', text: 'Legendas <strong>curtas (até 15 palavras)</strong> performam 60% melhor. Emojis no início aumentam CTR em 25%.' },
+      freq: { icon:'🔁', label:'Frequência de postagem', text: '<strong>2–3 posts por dia</strong> em dias úteis. Picos às terças, quartas e quintas.' },
+      summary: { icon:'🎯', label:'Resumo estratégico', text: 'Foque em <strong>humor cotidiano + animais</strong>, poste entre <strong>19h–21h</strong> com legendas curtas. Reels de 15–30 segundos performam melhor.' }
+    };
+    const selected = [...state.dossierOpts];
+    result.innerHTML = `<div class="dossier-result-title">📋 Dossiê do perfil</div>` +
+      selected.map(opt => insights[opt] ? `<div class="dossier-insight"><div class="dossier-insight-icon">${insights[opt].icon}</div><div class="dossier-insight-text"><strong>${insights[opt].label}:</strong> ${insights[opt].text}</div></div>` : '').join('');
+  }, 1200);
+}
+
+// SAVE MODAL
+function openSaveModal(videoId) {
+  state.savingVideo = mockVideos.find(v => v.id === videoId) || { id: videoId, title: 'Vídeo' };
+  document.getElementById('saveModalSub').textContent = state.savingVideo.title.substring(0,40) + '...';
+  renderCatGridModal();
+  renderProfileSelect();
+  state.selectedCat = null;
+  document.getElementById('saveNote').value = '';
+  document.getElementById('saveModal').classList.add('open');
+}
+function renderCatGridModal() {
+  const grid = document.getElementById('catGrid');
+  if (!grid) return;
+  const icons = ['🎵','🎙️','💡','🔁'];
+  grid.innerHTML = state.categories.map((cat,i) => `
+    <div class="cat-btn" onclick="selectCat(this,'${cat}')">
+      <span class="cat-icon">${icons[i] || '📌'}</span>
+      ${cat.replace(/[🎵🎙️💡🔁📌]/u,'').trim()}
+    </div>`).join('') +
+    `<div class="cat-btn" onclick="addCategoryFromModal()" style="border-style:dashed">
+      <span class="cat-icon">➕</span> Nova categoria
+    </div>`;
+}
+function renderProfileSelect() {
+  const sel = document.getElementById('saveProfile');
+  sel.innerHTML = state.profiles.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+function selectCat(el, cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedCat = cat;
+}
+function closeSaveModal() {
+  document.getElementById('saveModal').classList.remove('open');
+}
+function confirmSave() {
+  if (!state.selectedCat) { showToast('⚠️', 'Selecione uma categoria'); return; }
+  const profId = parseInt(document.getElementById('saveProfile').value);
+  const prof = state.profiles.find(p => p.id === profId);
+  state.library.push({
+    ...state.savingVideo,
+    category: state.selectedCat,
+    profile: prof ? prof.name : '',
+    profileColor: prof ? prof.color : '#ff6b35',
+    status: 'baixado',
+    note: document.getElementById('saveNote').value
+  });
+  closeSaveModal();
+  showToast('✅', 'Salvo na biblioteca!');
+}
+
+// DOWNLOAD
+function openDownload(videoId) {
+  state.savingVideo = { id: videoId };
+  document.getElementById('dlModal').classList.add('open');
+}
+function selectQuality(el, q) {
+  document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedQuality = q;
+}
+function confirmDownload() {
+  document.getElementById('dlModal').classList.remove('open');
+  showToast('⬇️', `Baixando em ${state.selectedQuality}...`);
+}
+
+// LIBRARY
+function renderLibSidebar() {
+  const list = document.getElementById('libProfileList');
+  const catList = document.getElementById('libCatList');
+  const filters = document.getElementById('libFilters');
+  if (list) list.innerHTML = state.profiles.map(p => `
+    <div class="sidebar-item" onclick="filterLibProfile(${p.id},this)">
+      <div class="sidebar-dot" style="background:${p.color}"></div>
+      ${p.name}
+    </div>`).join('');
+  if (catList) catList.innerHTML = state.categories.map(cat => `
+    <div class="sidebar-item" onclick="filterLibCat('${cat}',this)">${cat}</div>`).join('');
+  if (filters) {
+    filters.innerHTML = `<div class="lib-filter active" onclick="filterLibCat('all',this)">Todos</div>` +
+      state.categories.map(cat => `<div class="lib-filter" onclick="filterLibCat('${cat}',this)">${cat}</div>`).join('') +
+      `<div class="lib-filter" onclick="addCategory()" style="border-style:dashed;color:var(--text3)">+ Categoria</div>`;
+  }
+}
+function renderLibGrid() {
+  const grid = document.getElementById('libGrid');
+  if (!grid) return;
+  if (state.library.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-state-icon">📁</div>
+      <div class="empty-state-title">Biblioteca vazia</div>
+      <div class="empty-state-sub">Salve vídeos da pesquisa ou importe do seu computador</div>
+    </div>`;
+    return;
+  }
+  const statusClass = { baixado:'status-baixado', editando:'status-editando', pronto:'status-pronto', postado:'status-postado' };
+  grid.innerHTML = state.library.map((v,i) => `
+    <div class="lib-card">
+      <div class="lib-card-thumb">
+        <span style="font-size:32px">${v.emoji || '🎬'}</span>
+        <div class="lib-cat-badge" style="background:${v.profileColor}">${v.category.split(' ')[0]}</div>
+        <div class="lib-status-badge ${statusClass[v.status] || 'status-baixado'}">${v.status}</div>
+      </div>
+      <div class="lib-card-info">
+        <div class="lib-card-profile">${v.profile}</div>
+        <div class="lib-card-title">${v.title}</div>
+        ${v.note ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">📝 ${v.note}</div>` : ''}
+      </div>
+      <div class="lib-card-actions">
+        <select class="lib-download-btn" onchange="changeStatus(${i},this.value)" style="flex:1;cursor:pointer">
+          <option value="baixado" ${v.status==='baixado'?'selected':''}>Baixado</option>
+          <option value="editando" ${v.status==='editando'?'selected':''}>Editando</option>
+          <option value="pronto" ${v.status==='pronto'?'selected':''}>Pronto</option>
+          <option value="postado" ${v.status==='postado'?'selected':''}>Postado</option>
+        </select>
+        <div class="lib-download-btn" onclick="openDownload(${v.id})" style="flex:0.5;text-align:center">⬇</div>
+      </div>
+    </div>`).join('');
+}
+function changeStatus(i, status) {
+  state.library[i].status = status;
+  renderLibGrid();
+}
+function filterLibCat(cat, el) {
+  document.querySelectorAll('.lib-filter').forEach(f => f.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+function filterLibProfile(id, el) {
+  document.querySelectorAll('#libProfileList .sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+function filterLibStatus(status, el) {
+  document.querySelectorAll('#sbLibrary .sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+function handleUpload(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    state.library.push({
+      id: Date.now(),
+      title: file.name.replace(/\.[^.]+$/,''),
+      emoji: '🎬',
+      views: '-',
+      comments: '-',
+      platform: 'local',
+      category: '🔁 Repostar',
+      profile: state.profiles[0]?.name || 'Meu perfil',
+      profileColor: state.profiles[0]?.color || '#ff6b35',
+      status: 'baixado',
+      note: 'Importado do computador'
+    });
+  });
+  renderLibGrid();
+  showToast('✅', `${files.length} vídeo(s) importado(s)!`);
+}
+
+// FAVORITES
+function switchFavPlatform(platform, el) {
+  state.currentFavPlatform = platform;
+  document.querySelectorAll('.fav-platform-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderFavList();
+}
+function renderFavList() {
+  const list = document.getElementById('favList');
+  if (!list) return;
+  const favs = state.favorites[state.currentFavPlatform] || [];
+  if (favs.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⭐</div><div class="empty-state-title">Nenhum favorito</div><div class="empty-state-sub">Favorite perfis para monitorar seus virais</div></div>`;
+    return;
+  }
+  list.innerHTML = favs.map(f => `
+    <div class="fav-item">
+      <div class="fav-avatar" style="background:${f.color}">${f.name.substring(0,2).toUpperCase()}</div>
+      <div class="fav-info">
+        <div class="fav-name">@${f.name}</div>
+        <div class="fav-meta">${f.followers} seguidores · Base: ${f.base}</div>
+      </div>
+      <div style="text-align:right">
+        ${f.notify && f.notifText ? `<div class="fav-notif"><div class="notif-dot"></div><div class="notif-text">${f.notifText}</div></div>` : '<div style="font-size:11px;color:var(--text3)">Sem novidades</div>'}
+      </div>
+    </div>`).join('');
+}
+
+// ANALYTICS
+function renderAnalyticsSidebar() {
+  const list = document.getElementById('analyticsProfileList');
+  if (!list) return;
+  list.innerHTML = state.profiles.map(p => `
+    <div class="sidebar-item" onclick="showAnalyticsProfile(${p.id},this)">
+      <div class="sidebar-dot" style="background:${p.color}"></div>
+      ${p.name}
+    </div>`).join('');
+}
+function renderAnalyticsGrid() {
+  const grid = document.getElementById('analyticsGrid');
+  if (!grid) return;
+  if (state.profiles.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Nenhum perfil</div><div class="empty-state-sub">Adicione seus perfis para ver analytics</div></div>`;
+    return;
+  }
+  const mockMetrics = [
+    { eng:'4.8%', posts:'127', virais:'12', top:'Gato descobre espelho', topViews:'4.2M', bestHour:'20h', bestDay:'Quarta', pattern:'Humor + animais' },
+    { eng:'3.2%', posts:'89', virais:'7', top:'Narração futebol épica', topViews:'3.1M', bestHour:'19h', bestDay:'Quinta', pattern:'Humor cotidiano' }
+  ];
+  grid.innerHTML = state.profiles.map((p,i) => {
+    const m = mockMetrics[i] || mockMetrics[0];
+    return `<div class="analytics-profile-card" onclick="showAnalyticsProfile(${p.id},null)">
+      <div class="analytics-card-header">
+        <div class="analytics-avatar" style="background:${p.color}">${p.name.substring(0,2).toUpperCase()}</div>
+        <div>
+          <div class="analytics-name">${p.name}</div>
+          <div class="analytics-platform">${{ig:'Instagram',yt:'YouTube',tt:'TikTok'}[p.platform]}</div>
+        </div>
+      </div>
+      <div class="analytics-metrics">
+        <div class="analytics-metric">
+          <div class="analytics-metric-value">${m.eng}</div>
+          <div class="analytics-metric-label">Engajamento</div>
+        </div>
+        <div class="analytics-metric">
+          <div class="analytics-metric-value">${m.posts}</div>
+          <div class="analytics-metric-label">Posts</div>
+        </div>
+        <div class="analytics-metric">
+          <div class="analytics-metric-value">${m.virais}</div>
+          <div class="analytics-metric-label">Viralizados</div>
+        </div>
+      </div>
+      <div class="analytics-detail">
+        <div class="analytics-bar-label"><span>Taxa de viralização</span><span>${Math.round(parseInt(m.virais)/parseInt(m.posts)*100)}%</span></div>
+        <div class="analytics-bar-bg"><div class="analytics-bar-fill" style="width:${Math.round(parseInt(m.virais)/parseInt(m.posts)*100)}%;background:${p.color}"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">🏆 Melhor post: ${m.topViews} views</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showAnalyticsProfile(id, el) {
+  if (el) {
+    document.querySelectorAll('#analyticsProfileList .sidebar-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+  const prof = state.profiles.find(p => p.id === id);
+  if (!prof) return;
+  const va = document.getElementById('viralAnalysis');
+  const ig = document.getElementById('insightGrid');
+  va.style.display = 'block';
+  document.getElementById('viralAnalysisTitle').textContent = `Análise de viralização — ${prof.name}`;
+  ig.innerHTML = `
+    <div class="insight-card"><div class="insight-card-label">Melhor horário</div><div class="insight-card-value">19h – 21h</div><div class="insight-card-sub">45% do engajamento nesse período</div></div>
+    <div class="insight-card"><div class="insight-card-label">Melhor dia</div><div class="insight-card-value">Quarta-feira</div><div class="insight-card-sub">3x mais alcance orgânico</div></div>
+    <div class="insight-card"><div class="insight-card-label">Duração ideal</div><div class="insight-card-value">15–30 seg</div><div class="insight-card-sub">Retenção 70% maior</div></div>
+    <div class="insight-card"><div class="insight-card-label">Padrão de conteúdo</div><div class="insight-card-value">Humor + Animais</div><div class="insight-card-sub">70% dos viralizados</div></div>
+    <div class="insight-card"><div class="insight-card-label">Legenda ideal</div><div class="insight-card-value">Curta (&lt;15 palavras)</div><div class="insight-card-sub">60% mais performance</div></div>
+    <div class="insight-card"><div class="insight-card-label">Frequência ideal</div><div class="insight-card-value">2–3x por dia</div><div class="insight-card-sub">Dias úteis, pico Ter/Qua/Qui</div></div>`;
+}
+
+// ADD PROFILE
+function openAddProfile() {
+  document.getElementById('profileName').value = '';
+  document.getElementById('addProfileModal').classList.add('open');
+}
+function selectColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedColor = el.dataset.color;
+}
+function confirmAddProfile() {
+  const name = document.getElementById('profileName').value.trim();
+  if (!name) { showToast('⚠️', 'Digite um nome para o perfil'); return; }
+  const platform = document.getElementById('profilePlatform').value;
+  state.profiles.push({ id: Date.now(), name, platform, color: state.selectedColor });
+  document.getElementById('addProfileModal').classList.remove('open');
+  renderLibSidebar();
+  renderAnalyticsSidebar();
+  renderAnalyticsGrid();
+  showToast('✅', `Perfil "${name}" adicionado!`);
+}
+
+// CATEGORIES
+function addCategory() {
+  const name = prompt('Nome da nova categoria:');
+  if (!name) return;
+  state.categories.push(name);
+  renderLibSidebar();
+  renderCatGridModal();
+  showToast('✅', `Categoria "${name}" criada!`);
+}
+function addCategoryFromModal() {
+  const name = prompt('Nome da nova categoria:');
+  if (!name) return;
+  state.categories.push(name);
+  renderCatGridModal();
+  showToast('✅', `Categoria "${name}" criada!`);
+}
+
+// TOAST
+function showToast(icon, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
